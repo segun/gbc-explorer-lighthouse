@@ -994,7 +994,7 @@ func saveValidators(data *types.EpochData, tx *sql.Tx) error {
 	}
 
 	s := time.Now()
-	_, err = tx.Exec("update validators set balanceactivation = (select balance from validator_balances_p where validator_balances_p.week = validators.activationepoch / 1575 and validator_balances_p.epoch = validators.activationepoch and validator_balances_p.validatorindex = validators.validatorindex) WHERE balanceactivation IS NULL;")
+	_, err = tx.Exec("update validators set balanceactivation = (select balance from validator_balances_p where validator_balances_p.week = validators.activationepoch / 7560 and validator_balances_p.epoch = validators.activationepoch and validator_balances_p.validatorindex = validators.validatorindex) WHERE balanceactivation IS NULL;")
 	if err != nil {
 		return err
 	}
@@ -1039,7 +1039,7 @@ func saveValidatorAttestationAssignments(epoch uint64, assignments map[string]ui
 	for key, validator := range assignments {
 		keySplit := strings.Split(key, "-")
 		//args = append(args, []interface{}{epoch, validator, keySplit[0], keySplit[1], 0})
-		argsWeek = append(argsWeek, []interface{}{epoch, validator, keySplit[0], keySplit[1], 0, epoch / 1575})
+		argsWeek = append(argsWeek, []interface{}{epoch, validator, keySplit[0], keySplit[1], 0, epoch / 7560})
 	}
 
 	batchSize := 10000
@@ -1093,7 +1093,7 @@ func saveValidatorBalances(epoch uint64, validators []*types.Validator, tx *sql.
 			valueArgs = append(valueArgs, v.Index)
 			valueArgs = append(valueArgs, v.Balance)
 			valueArgs = append(valueArgs, v.EffectiveBalance)
-			valueArgs = append(valueArgs, epoch/1575)
+			valueArgs = append(valueArgs, epoch/7560)
 		}
 		stmt := fmt.Sprintf(`
 		INSERT INTO validator_balances_p (epoch, validatorindex, balance, effectivebalance, week)
@@ -1345,7 +1345,7 @@ func saveBlocks(blocks map[uint64]map[string]*types.Block, tx *sql.Tx) error {
 				attestingValidators := make([]string, 0, 20000)
 
 				for _, validator := range a.Attesters {
-					attestationAssignmentsArgsWeek = append(attestationAssignmentsArgsWeek, []interface{}{a.Data.Slot / utils.Config.Chain.SlotsPerEpoch, validator, a.Data.Slot, a.Data.CommitteeIndex, 1, b.Slot, a.Data.Slot / utils.Config.Chain.SlotsPerEpoch / 1575})
+					attestationAssignmentsArgsWeek = append(attestationAssignmentsArgsWeek, []interface{}{a.Data.Slot / utils.Config.Chain.SlotsPerEpoch, validator, a.Data.Slot, a.Data.CommitteeIndex, 1, b.Slot, a.Data.Slot / utils.Config.Chain.SlotsPerEpoch / 7560})
 					attestingValidators = append(attestingValidators, strconv.FormatUint(validator, 10))
 				}
 
