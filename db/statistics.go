@@ -33,7 +33,7 @@ func WriteStatisticsForDay(day uint64) error {
 		(
 			select validatorindex, $3, min(balance), max(balance), min(effectivebalance), max(effectivebalance), max(case when epoch = $1 then balance else 0 end), max(case when epoch = $1 then effectivebalance else 0 end), max(case when epoch = $2 then balance else 0 end), max(case when epoch = $2 then effectivebalance else 0 end) 
 			from validator_balances_p 
-			where week >= $1 / 7560 AND week <= $2 / 1575 and epoch >= $1 and epoch <= $2
+			where week >= $1 / 7560 AND week <= $2 / 7560 and epoch >= $1 and epoch <= $2
 			group by validatorindex
 		) 
 		on conflict (validatorindex, day) do update set min_balance = excluded.min_balance, max_balance = excluded.max_balance, min_effective_balance = excluded.min_effective_balance, max_effective_balance = excluded.max_effective_balance, start_balance = excluded.start_balance, start_effective_balance = excluded.start_effective_balance, end_balance = excluded.end_balance, end_effective_balance = excluded.end_effective_balance;`,
