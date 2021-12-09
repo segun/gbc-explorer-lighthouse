@@ -67,8 +67,8 @@ func exportSyncCommitteeAtPeriod(rpcClient rpc.Client, p uint64) error {
 
 	firstEpoch := utils.FirstEpochOfSyncPeriod(p)
 	lastEpoch := firstEpoch + utils.Config.Chain.EpochsPerSyncCommitteePeriod
-	firstWeek := firstEpoch / 5400
-	lastWeek := lastEpoch / 5400
+	firstWeek := firstEpoch / 7560
+	lastWeek := lastEpoch / 7560
 	for w := firstWeek; w <= lastWeek; w++ {
 		var one int
 		err := db.DB.Get(&one, fmt.Sprintf("SELECT 1 FROM information_schema.tables WHERE table_name = 'sync_assignments_%v'", w))

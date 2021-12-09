@@ -472,7 +472,7 @@ func inclusionDistanceChartData() (*types.GenericChartData, error) {
 		select a.epoch, avg(a.inclusionslot - a.attesterslot) as inclusiondistance
 		from attestation_assignments_p a
 		inner join blocks b on b.slot = a.attesterslot and b.status = '1'
-		where a.week >= $1 / 5400 a.epoch > $1 and a.inclusionslot > 0
+		where a.week >= $1 / 7560 a.epoch > $1 and a.inclusionslot > 0
 		group by a.epoch
 		order by a.epoch asc`, epochOffset)
 	if err != nil {
@@ -527,7 +527,7 @@ func votingDistributionChartData() (*types.GenericChartData, error) {
 		select a.epoch, avg(a.inclusionslot - a.attesterslot) as inclusiondistance
 		from attestation_assignments_p a
 		inner join blocks b on b.slot = a.attesterslot and b.status = '1'
-		where a.inclusionslot > 0 and a.epoch > $1and a.week >= $1 / 5400
+		where a.inclusionslot > 0 and a.epoch > $1and a.week >= $1 / 7560
 		group by a.epoch
 		order by a.epoch asc`, epochOffset)
 	if err != nil {
@@ -582,7 +582,7 @@ func averageDailyValidatorIncomeChartData() (*types.GenericChartData, error) {
 					left join validator_balances_p vb
 						on vb.validatorindex = v.validatorindex
 						and vb.epoch = v.activationepoch
-						and vb.week = v.activationepoch / 5400
+						and vb.week = v.activationepoch / 7560
 				order by vb.epoch
 			),
 			extradeposits as (
@@ -678,7 +678,7 @@ func stakingRewardsChartData() (*types.GenericChartData, error) {
 					left join validator_balances_p vb
 						on vb.validatorindex = v.validatorindex
 						and vb.epoch = v.activationepoch
-						and vb.week = v.activationepoch / 5400
+						and vb.week = v.activationepoch / 7560
 				order by vb.epoch
 			),
 			extradeposits as (

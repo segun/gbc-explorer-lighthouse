@@ -35,9 +35,9 @@ func GetValidatorOnlineThresholdSlot() uint64 {
 func GetValidatorEarnings(validators []uint64, currency string) (*types.ValidatorEarnings, error) {
 	validatorsPQArray := pq.Array(validators)
 	latestEpoch := int64(services.LatestEpoch())
-	lastDayEpoch := latestEpoch - 771
-	lastWeekEpoch := latestEpoch - 5400
-	lastMonthEpoch := latestEpoch - 23914
+	lastDayEpoch := latestEpoch - 1080
+	lastWeekEpoch := latestEpoch - 7560
+	lastMonthEpoch := latestEpoch - 33480
 
 	if lastDayEpoch < 0 {
 		lastDayEpoch = 0
