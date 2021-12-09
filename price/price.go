@@ -21,7 +21,7 @@ type EthPrice struct {
 		Usd float64 `json:"usd"`
 		Gbp float64 `json:"gbp"`
 		Aud float64 `json:"aud"`
-	} `json:"xdai-stake"`
+	} `json:"gnosis"`
 }
 
 var ethPrice = new(EthPrice)
