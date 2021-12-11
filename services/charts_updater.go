@@ -301,15 +301,15 @@ func stakedEtherChartData() (*types.GenericChartData, error) {
 	}
 
 	chartData := &types.GenericChartData{
-		Title:        "Staked Ether",
-		Subtitle:     "History of daily staked Ether, which is the sum of all Effective Balances.",
+		Title:        "Staked mGNO",
+		Subtitle:     "History of daily staked mGNO, which is the sum of all Effective Balances.",
 		XAxisTitle:   "",
-		YAxisTitle:   "Ether",
+		YAxisTitle:   "mGNO",
 		StackingMode: "false",
 		Type:         "column",
 		Series: []*types.GenericChartDataSeries{
 			{
-				Name: "Staked Ether",
+				Name: "Staked mGNO",
 				Data: dailyStakedEther,
 			},
 		},
@@ -347,7 +347,7 @@ func averageBalanceChartData() (*types.GenericChartData, error) {
 		Title:        "Validator Balance",
 		Subtitle:     "Average Daily Validator Balance.",
 		XAxisTitle:   "",
-		YAxisTitle:   "Ether",
+		YAxisTitle:   "mGNO",
 		StackingMode: "false",
 		Type:         "column",
 		Series: []*types.GenericChartDataSeries{
@@ -905,7 +905,7 @@ func stakeEffectivenessChartData() (*types.GenericChartData, error) {
 
 	chartData := &types.GenericChartData{
 		Title:        "Stake Effectiveness",
-		Subtitle:     "Stake Effectiveness measures the relation between the sum of all effective balances and the sum of all balances. 100% Stake Effectiveness means that 100% of the locked Ether is used for staking.",
+		Subtitle:     "Stake Effectiveness measures the relation between the sum of all effective balances and the sum of all balances. 100% Stake Effectiveness means that 100% of the locked mGNO is used for staking.",
 		XAxisTitle:   "",
 		YAxisTitle:   "Stake Effectiveness [%]",
 		StackingMode: "false",

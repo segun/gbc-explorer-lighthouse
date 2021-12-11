@@ -6,7 +6,6 @@ import (
 	"eth2-exporter/exporter"
 	"eth2-exporter/handlers"
 	"eth2-exporter/metrics"
-	"eth2-exporter/price"
 	"eth2-exporter/rpc"
 	"eth2-exporter/services"
 	"eth2-exporter/types"
@@ -115,7 +114,7 @@ func main() {
 			return
 		}
 
-		go services.StartHistoricPriceService()
+		// go services.StartHistoricPriceService()
 		go exporter.Start(rpcClient)
 	}
 
@@ -189,7 +188,7 @@ func main() {
 		router.HandleFunc("/api/healthz-loadbalancer", handlers.ApiHealthzLoadbalancer).Methods("GET", "HEAD")
 
 		services.Init() // Init frontend services
-		price.Init()
+		// price.Init()
 		ethclients.Init()
 
 		logrus.Infof("frontend services initiated")
