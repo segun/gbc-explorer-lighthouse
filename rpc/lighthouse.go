@@ -284,9 +284,9 @@ func (lc *LighthouseClient) GetEpochData(epoch uint64) (*types.EpochData, error)
 		return nil, fmt.Errorf("error parsing epoch validators: %v", err)
 	}
 
-	epoch1d := int64(epoch) - 225
-	epoch7d := int64(epoch) - 225*7
-	epoch31d := int64(epoch) - 225*31
+	epoch1d := int64(epoch) - 1080
+	epoch7d := int64(epoch) - 1080*7
+	epoch31d := int64(epoch) - 1080*31
 
 	var validatorBalances1d map[uint64]uint64
 	var validatorBalances7d map[uint64]uint64

@@ -352,7 +352,7 @@ func averageBalanceChartData() (*types.GenericChartData, error) {
 		Type:         "column",
 		Series: []*types.GenericChartDataSeries{
 			{
-				Name: "Average Balance [ETH]",
+				Name: "Average Balance [mGNO]",
 				Data: dailyAverageBalance,
 			},
 		},
@@ -644,7 +644,7 @@ func averageDailyValidatorIncomeChartData() (*types.GenericChartData, error) {
 		Title:        "Validator Income",
 		Subtitle:     "Average Daily Validator Income.",
 		XAxisTitle:   "",
-		YAxisTitle:   "Average Daily Validator Income [ETH/day]",
+		YAxisTitle:   "Average Daily Validator Income [mGNO/day]",
 		StackingMode: "false",
 		Type:         "column",
 		Series: []*types.GenericChartDataSeries{
@@ -735,7 +735,7 @@ func stakingRewardsChartData() (*types.GenericChartData, error) {
 		Title:        "Staking Rewards",
 		Subtitle:     "Total Accumulated Staking Rewards",
 		XAxisTitle:   "",
-		YAxisTitle:   "Staking Rewards [ETH]",
+		YAxisTitle:   "Staking Rewards [mGNO]",
 		StackingMode: "false",
 		Type:         "line",
 		Series: []*types.GenericChartDataSeries{
@@ -849,7 +849,7 @@ func estimatedValidatorIncomeChartData() (*types.GenericChartData, error) {
 		Title:        "Average Daily Validator Income",
 		Subtitle:     "",
 		XAxisTitle:   "",
-		YAxisTitle:   "Average Daily Validator Income [ETH/day]",
+		YAxisTitle:   "Average Daily Validator Income [mGNO/day]",
 		StackingMode: "false",
 		Type:         "line",
 		Series: []*types.GenericChartDataSeries{
@@ -990,7 +990,7 @@ func balanceDistributionChartData() (*types.GenericChartData, error) {
 		Subtitle:             fmt.Sprintf("Histogram of Balances at epoch %d.", currentEpoch),
 		XAxisTitle:           "Balance",
 		YAxisTitle:           "# of Validators",
-		XAxisLabelsFormatter: `function(){ return this.value+'ETH' }`,
+		XAxisLabelsFormatter: `function(){ return this.value+'mGNO' }`,
 		StackingMode:         "false",
 		Type:                 "column",
 		Series: []*types.GenericChartDataSeries{
@@ -1073,7 +1073,7 @@ func effectiveBalanceDistributionChartData() (*types.GenericChartData, error) {
 		Subtitle:             fmt.Sprintf("Histogram of Effective Balances at epoch %d.", currentEpoch),
 		XAxisTitle:           "Effective Balance",
 		YAxisTitle:           "# of Validators",
-		XAxisLabelsFormatter: `function(){ return this.value+'ETH' }`,
+		XAxisLabelsFormatter: `function(){ return this.value+'mGNO' }`,
 		StackingMode:         "false",
 		Type:                 "column",
 		Series: []*types.GenericChartDataSeries{
@@ -1135,8 +1135,8 @@ func performanceDistribution1dChartData() (*types.GenericChartData, error) {
 		Subtitle:      fmt.Sprintf("Histogram of income-performances of the last day at epoch %d.", LatestEpoch()),
 		XAxisTitle:    "Income",
 		XAxisLabelsFormatter: `function(){
-  if (this.value < 0) return '<span style="color:var(--danger)">'+this.value+'ETH<span>'
-  return '<span style="color:var(--success)">'+this.value+'ETH<span>'
+  if (this.value < 0) return '<span style="color:var(--danger)">'+this.value+'mGNO<span>'
+  return '<span style="color:var(--success)">'+this.value+'mGNO<span>'
 }
 `,
 		YAxisTitle:   "# of Validators",
@@ -1201,8 +1201,8 @@ func performanceDistribution7dChartData() (*types.GenericChartData, error) {
 		Subtitle:      fmt.Sprintf("Histogram of income-performances of the last 7 days at epoch %d.", LatestEpoch()),
 		XAxisTitle:    "Income",
 		XAxisLabelsFormatter: `function(){
-  if (this.value < 0) return '<span style="color:var(--danger)">'+this.value+'ETH<span>'
-  return '<span style="color:var(--success)">'+this.value+'ETH<span>'
+  if (this.value < 0) return '<span style="color:var(--danger)">'+this.value+'mGNO<span>'
+  return '<span style="color:var(--success)">'+this.value+'mGNO<span>'
 }
 `,
 		YAxisTitle:   "# of Validators",
@@ -1267,8 +1267,8 @@ func performanceDistribution31dChartData() (*types.GenericChartData, error) {
 		Subtitle:      fmt.Sprintf("Histogram of income-performances of the last 31 days at epoch %d.", LatestEpoch()),
 		XAxisTitle:    "Income",
 		XAxisLabelsFormatter: `function(){
-  if (this.value < 0) return '<span style="color:var(--danger)">'+this.value+'ETH<span>'
-  return '<span style="color:var(--success)">'+this.value+'ETH<span>'
+  if (this.value < 0) return '<span style="color:var(--danger)">'+this.value+'mGNO<span>'
+  return '<span style="color:var(--success)">'+this.value+'mGNO<span>'
 }
 `,
 		YAxisTitle:   "# of Validators",
@@ -1336,8 +1336,8 @@ func performanceDistribution365dChartData() (*types.GenericChartData, error) {
 		Subtitle:      fmt.Sprintf("Histogram of income-performances of the last 365 days at epoch %d.", LatestEpoch()),
 		XAxisTitle:    "Income",
 		XAxisLabelsFormatter: `function(){
-  if (this.value < 0) return '<span style="color:var(--danger)">'+this.value+'ETH<span>'
-  return '<span style="color:var(--success)">'+this.value+'ETH<span>'
+  if (this.value < 0) return '<span style="color:var(--danger)">'+this.value+'mGNO<span>'
+  return '<span style="color:var(--success)">'+this.value+'mGNO<span>'
 }
 `,
 		YAxisTitle:   "# of Validators",
@@ -1421,24 +1421,24 @@ func depositsChartData() (*types.GenericChartData, error) {
 
 	chartData := &types.GenericChartData{
 		Title:        "Deposits",
-		Subtitle:     "Daily Amount of deposited ETH.",
+		Subtitle:     "Daily Amount of deposited mGNO.",
 		XAxisTitle:   "Income",
-		YAxisTitle:   "Deposited ETH",
+		YAxisTitle:   "Deposited mGNO",
 		StackingMode: "normal",
 		Type:         "column",
 		Series: []*types.GenericChartDataSeries{
 			{
-				Name:  "ETH2",
+				Name:  "GBC",
 				Data:  dailyEth2Deposits,
 				Stack: "eth2",
 			},
 			{
-				Name:  "ETH1 (success)",
+				Name:  "GC (success)",
 				Data:  dailySuccessfulEth1Deposits,
 				Stack: "eth1",
 			},
 			{
-				Name:  "ETH1 (failed)",
+				Name:  "GC (failed)",
 				Data:  dailyFailedEth1Deposits,
 				Stack: "eth1",
 			},
@@ -1768,8 +1768,8 @@ func depositsDistributionChartData() (*types.GenericChartData, error) {
 	chartData := &types.GenericChartData{
 		IsNormalChart:    true,
 		Type:             "pie",
-		Title:            "Eth1 Deposit Addresses",
-		Subtitle:         "Validator distribution by Eth1 deposit address.",
+		Title:            "GC Deposit Addresses",
+		Subtitle:         "Validator distribution by GC deposit address.",
 		TooltipFormatter: `function(){ return '<b>'+this.point.name+'</b><br\>Percentage: '+this.point.percentage.toFixed(2)+'%<br\>Validators: '+this.point.y }`,
 		PlotOptionsPie: `{
 			borderWidth: 1,

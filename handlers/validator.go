@@ -592,7 +592,7 @@ func Validator(w http.ResponseWriter, r *http.Request) {
 			MissedSync       uint64 `db:"missed_sync"`
 			OrphanedSync     uint64 `db:"orphaned_sync"`
 		}{}
-		err = db.DB.Get(&syncStatsNotInStats, "select coalesce(sum(case when status = 0 then 1 else 0 end), 0) as scheduled_sync, coalesce(sum(case when status = 1 then 1 else 0 end), 0) as participated_sync, coalesce(sum(case when status = 2 then 1 else 0 end), 0) as missed_sync, coalesce(sum(case when status = 3 then 1 else 0 end), 0) as orphaned_sync from sync_assignments_p where week >= $1/7 and slot >= ($1+1)*225*32 and validatorindex = $2", lastStatsDay, index)
+		err = db.DB.Get(&syncStatsNotInStats, "select coalesce(sum(case when status = 0 then 1 else 0 end), 0) as scheduled_sync, coalesce(sum(case when status = 1 then 1 else 0 end), 0) as participated_sync, coalesce(sum(case when status = 2 then 1 else 0 end), 0) as missed_sync, coalesce(sum(case when status = 3 then 1 else 0 end), 0) as orphaned_sync from sync_assignments_p where week >= $1/7 and slot >= ($1+1)*1080*16 and validatorindex = $2", lastStatsDay, index)
 		if err != nil {
 			logger.Errorf("error retrieving validator syncStatsAfterLastStatsDay: %v", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)

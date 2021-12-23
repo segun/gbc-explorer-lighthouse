@@ -560,7 +560,7 @@ func updateValidatorPerformance() error {
 	}
 
 	lastDayEpoch := currentEpoch - 1080
-	lastWeekEpoch := currentEpoch - 5400
+	lastWeekEpoch := currentEpoch - 7560
 	lastMonthEpoch := currentEpoch - 33480
 
 	if lastDayEpoch < 0 {
