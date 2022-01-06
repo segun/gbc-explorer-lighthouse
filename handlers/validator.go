@@ -530,7 +530,7 @@ func Validator(w http.ResponseWriter, r *http.Request) {
 	), 0)
 	FROM attestation_assignments_p aa
 	INNER JOIN blocks ON blocks.slot = aa.inclusionslot AND blocks.status <> '3'
-	WHERE aa.week >= $1 / 5400 AND aa.epoch > $1 AND aa.validatorindex = $2 AND aa.inclusionslot > 0
+	WHERE aa.week >= $1 / 7560 AND aa.epoch > $1 AND aa.validatorindex = $2 AND aa.inclusionslot > 0
 	`, int64(validatorPageData.Epoch)-100, index)
 	if err != nil {
 		logger.Errorf("error retrieving AverageAttestationInclusionDistance: %v", err)
@@ -1302,7 +1302,7 @@ func ValidatorHistory(w http.ResponseWriter, r *http.Request) {
 			FROM validator_balances_p vbalance
 			LEFT JOIN attestation_assignments_p assign ON vbalance.validatorindex = assign.validatorindex AND vbalance.epoch = assign.epoch AND vbalance.week = assign.week
 			LEFT JOIN blocks vblocks ON vbalance.validatorindex = vblocks.proposer AND vbalance.epoch = vblocks.epoch AND vbalance.week = vblocks.epoch / 7560
-			WHERE vbalance.validatorindex = $1 AND vbalance.epoch >= $2 AND vbalance.epoch <= $3 AND vbalance.week >= $2 / 5400 AND vbalance.week <= $3 / 7560
+			WHERE vbalance.validatorindex = $1 AND vbalance.epoch >= $2 AND vbalance.epoch <= $3 AND vbalance.week >= $2 / 7560 AND vbalance.week <= $3 / 7560
 			ORDER BY epoch DESC
 			LIMIT 10
 			`, index, lookBack, currentEpoch-start)

@@ -730,7 +730,7 @@ func validatorEffectiveness(epoch int64, indices []uint64) ([]interface{}, error
 	FROM attestation_assignments_p aa
 	INNER JOIN blocks ON blocks.slot = aa.inclusionslot AND blocks.status <> '3'
 	INNER JOIN validators ON validators.validatorindex = aa.validatorindex
-	WHERE aa.week >= $1 / 1575 AND aa.epoch > $1 AND (validators.validatorindex = ANY($2)) AND aa.inclusionslot > 0
+	WHERE aa.week >= $1 / 7560 AND aa.epoch > $1 AND (validators.validatorindex = ANY($2)) AND aa.inclusionslot > 0
 	GROUP BY aa.validatorindex, validators.pubkey
 	ORDER BY aa.validatorindex
 	`, effectivenessEpochRange, pq.Array(indices))
