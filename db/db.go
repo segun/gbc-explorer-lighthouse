@@ -605,7 +605,7 @@ func SaveBlock(block *types.Block) error {
 	defer tx.Rollback()
 
 	logger.Infof("exporting block data")
-	err = saveBlocks(blocksMap, tx)
+	err = saveBlocks(blocksMap, tx, true)
 	if err != nil {
 		logger.Fatalf("error saving blocks to db: %v", err)
 		return fmt.Errorf("error saving blocks to db: %v", err)
@@ -636,7 +636,7 @@ func SaveEpoch(data *types.EpochData) error {
 	logger.WithFields(logrus.Fields{"chainEpoch": utils.TimeToEpoch(time.Now()), "exportEpoch": data.Epoch}).Infof("starting export of epoch %v", data.Epoch)
 
 	logger.Infof("exporting block data")
-	err = saveBlocks(data.Blocks, tx)
+	err = saveBlocks(data.Blocks, tx, false)
 	if err != nil {
 		logger.Fatalf("error saving blocks to db: %v", err)
 		return fmt.Errorf("error saving blocks to db: %w", err)
@@ -876,12 +876,7 @@ func saveValidators(data *types.EpochData, tx *sql.Tx) error {
 		}
 	}
 
-	var latestBlock uint64
-	err := DB.Get(&latestBlock, "SELECT COALESCE(MAX(slot), 0) FROM blocks WHERE status = '1'")
-	if err != nil {
-		return err
-	}
-
+	latestBlock := slots[len(slots)-1]
 	thresholdSlot := latestBlock - 64
 	if latestBlock < 64 {
 		thresholdSlot = 0
@@ -928,12 +923,21 @@ func saveValidators(data *types.EpochData, tx *sql.Tx) error {
 			valueArgs = append(valueArgs, v.ActivationEligibilityEpoch)
 			valueArgs = append(valueArgs, v.ActivationEpoch)
 			valueArgs = append(valueArgs, v.ExitEpoch)
-			valueArgs = append(valueArgs, v.Balance1d)
-			valueArgs = append(valueArgs, v.Balance7d)
-			valueArgs = append(valueArgs, v.Balance31d)
+			if data.Epoch%10 == 0 {
+				valueArgs = append(valueArgs, v.Balance1d, v.Balance7d, v.Balance31d)
+			} else {
+				valueArgs = append(valueArgs, v.Balance, v.Balance, v.Balance)
+			}
 			valueArgs = append(valueArgs, fmt.Sprintf("%x", v.PublicKey))
 			valueArgs = append(valueArgs, v.Status)
 			valueArgs = append(valueArgs, v.LastAttestationSlot)
+		}
+		overrideBalanceHistory := ""
+		if data.Epoch%10 == 0 {
+			overrideBalanceHistory = `
+				balance1d                  = EXCLUDED.balance1d,
+				balance7d                  = EXCLUDED.balance7d,
+				balance31d                 = EXCLUDED.balance31d,`
 		}
 		stmt := fmt.Sprintf(`
 			INSERT INTO validators (
@@ -963,14 +967,8 @@ func saveValidators(data *types.EpochData, tx *sql.Tx) error {
 				activationeligibilityepoch = EXCLUDED.activationeligibilityepoch,
 				activationepoch            = EXCLUDED.activationepoch,
 				exitepoch                  = EXCLUDED.exitepoch,
-				balance1d                  = EXCLUDED.balance1d,
-				balance7d                  = EXCLUDED.balance7d,
-				balance31d                 = EXCLUDED.balance31d,
-				lastattestationslot        = 
-					CASE 
-					WHEN EXCLUDED.lastattestationslot > COALESCE(validators.lastattestationslot, 0) THEN EXCLUDED.lastattestationslot 
-					ELSE validators.lastattestationslot 
-					END,
+				%[4]s
+				lastattestationslot        = GREATEST(EXCLUDED.lastattestationslot, validators.lastattestationslot),
 				status                     = 
 					CASE 
 					WHEN EXCLUDED.exitepoch <= %[1]d AND EXCLUDED.slashed THEN 'slashed'
@@ -984,7 +982,7 @@ func saveValidators(data *types.EpochData, tx *sql.Tx) error {
 					WHEN EXCLUDED.activationepoch < %[1]d AND GREATEST(EXCLUDED.lastattestationslot, validators.lastattestationslot) < %[2]d THEN 'active_offline' 
 					ELSE 'active_online'
 					END`,
-			latestBlock, thresholdSlot, strings.Join(valueStrings, ","))
+			latestBlock, thresholdSlot, strings.Join(valueStrings, ","), overrideBalanceHistory)
 		_, err := tx.Exec(stmt, valueArgs...)
 		if err != nil {
 			return err
@@ -994,7 +992,7 @@ func saveValidators(data *types.EpochData, tx *sql.Tx) error {
 	}
 
 	s := time.Now()
-	_, err = tx.Exec("update validators set balanceactivation = (select balance from validator_balances_p where validator_balances_p.week = validators.activationepoch / 7560 and validator_balances_p.epoch = validators.activationepoch and validator_balances_p.validatorindex = validators.validatorindex) WHERE balanceactivation IS NULL;")
+	_, err := tx.Exec("update validators set balanceactivation = (select balance from validator_balances_p where validator_balances_p.week = validators.activationepoch / 7560 and validator_balances_p.epoch = validators.activationepoch and validator_balances_p.validatorindex = validators.validatorindex) WHERE balanceactivation IS NULL;")
 	if err != nil {
 		return err
 	}
@@ -1155,7 +1153,7 @@ func saveValidatorBalancesRecent(epoch uint64, validators []*types.Validator, tx
 	return nil
 }
 
-func saveBlocks(blocks map[uint64]map[string]*types.Block, tx *sql.Tx) error {
+func saveBlocks(blocks map[uint64]map[string]*types.Block, tx *sql.Tx, exportLastAttestationSlot bool) error {
 	start := time.Now()
 	defer func() {
 		metrics.TaskDuration.WithLabelValues("db_save_blocks").Observe(time.Since(start).Seconds())
@@ -1224,7 +1222,7 @@ func saveBlocks(blocks map[uint64]map[string]*types.Block, tx *sql.Tx) error {
 	}
 	defer stmtProposalAssignments.Close()
 
-	stmtValidatorsLastAttestationSlot, err := tx.Prepare(`UPDATE validators SET lastattestationslot = $1 WHERE validatorindex = ANY($2::int[])`)
+	stmtValidatorsLastAttestationSlot, err := tx.Prepare(`UPDATE validators SET lastattestationslot = $1, status = 'active_online' WHERE validatorindex = ANY($2)`)
 	if err != nil {
 		return err
 	}
@@ -1314,25 +1312,13 @@ func saveBlocks(blocks map[uint64]map[string]*types.Block, tx *sql.Tx) error {
 				if bitLen < valLen {
 					return fmt.Errorf("error getting sync_committee participants: bitLen != valLen: %v != %v", bitLen, valLen)
 				}
-				nArgs := 4
-				valueStrings := make([]string, valLen)
-				valueArgs := make([]interface{}, valLen*nArgs)
+				missedValIndexes := make([]uint64, 0, valLen)
 				for i, valIndex := range b.SyncAggregate.SyncCommitteeValidators {
-					valueStrings[i] = fmt.Sprintf("($%d, $%d, $%d, $%d)", i*nArgs+1, i*nArgs+2, i*nArgs+3, i*nArgs+4)
-					valueArgs[i*nArgs] = b.Slot
-					valueArgs[i*nArgs+1] = valIndex
-					if utils.BitAtVector(b.SyncAggregate.SyncCommitteeBits, i) {
-						valueArgs[i*nArgs+2] = 1
-					} else {
-						valueArgs[i*nArgs+2] = 2
+					if !utils.BitAtVector(b.SyncAggregate.SyncCommitteeBits, i) {
+						missedValIndexes = append(missedValIndexes, valIndex)
 					}
-					valueArgs[i*nArgs+3] = utils.WeekOfSlot(b.Slot)
 				}
-				stmt := fmt.Sprintf(`
-					INSERT INTO sync_assignments_p (slot, validatorindex, status, week)
-					VALUES %s
-					ON CONFLICT (slot, validatorindex, week) DO UPDATE SET status = excluded.status`, strings.Join(valueStrings, ","))
-				_, err := tx.Exec(stmt, valueArgs...)
+				_, err := tx.Exec(`UPDATE sync_assignments_p SET status = CASE WHEN validatorindex = ANY ($1) THEN 2 ELSE 1 END WHERE week = $2 AND slot = $3`, pq.Array(missedValIndexes), utils.WeekOfSlot(b.Slot), b.Slot)
 				if err != nil {
 					return fmt.Errorf("error executing sync_assignments insert for block %v: %w", b.Slot, err)
 				}
@@ -1340,14 +1326,23 @@ func saveBlocks(blocks map[uint64]map[string]*types.Block, tx *sql.Tx) error {
 			blockLog.WithField("duration", time.Since(t)).Tracef("sync_assignments_p")
 			t = time.Now()
 
+			attestationsMap := make(map[uint64][]uint64, 16)
 			for i, a := range b.Attestations {
 				attestationAssignmentsArgsWeek := make([][]interface{}, 0, 20000)
-				attestingValidators := make([]string, 0, 20000)
+
+				var attestingValidators []uint64
+				if attestationsMap[a.Data.Slot] != nil {
+					attestingValidators = attestationsMap[a.Data.Slot]
+				} else {
+					attestingValidators = make([]uint64, 0, 20000)
+				}
 
 				for _, validator := range a.Attesters {
 					attestationAssignmentsArgsWeek = append(attestationAssignmentsArgsWeek, []interface{}{a.Data.Slot / utils.Config.Chain.SlotsPerEpoch, validator, a.Data.Slot, a.Data.CommitteeIndex, 1, b.Slot, a.Data.Slot / utils.Config.Chain.SlotsPerEpoch / 7560})
-					attestingValidators = append(attestingValidators, strconv.FormatUint(validator, 10))
+					attestingValidators = append(attestingValidators, validator)
 				}
+
+				attestationsMap[a.Data.Slot] = attestingValidators
 
 				batchSize := 20000
 
@@ -1374,16 +1369,22 @@ func saveBlocks(blocks map[uint64]map[string]*types.Block, tx *sql.Tx) error {
 					}
 				}
 
-				// _, err = stmtValidatorsLastAttestationSlot.Exec(a.Data.Slot, "{"+strings.Join(attestingValidators, ",")+"}")
-				// if err != nil {
-				// 	return fmt.Errorf("error executing stmtValidatorsLastAttestationSlot for block %v: %w", b.Slot, err)
-				// }
-
 				_, err = stmtAttestations.Exec(b.Slot, i, b.BlockRoot, bitfield.Bitlist(a.AggregationBits).Bytes(), pq.Array(a.Attesters), a.Signature, a.Data.Slot, a.Data.CommitteeIndex, a.Data.BeaconBlockRoot, a.Data.Source.Epoch, a.Data.Source.Root, a.Data.Target.Epoch, a.Data.Target.Root)
 				if err != nil {
 					return fmt.Errorf("error executing stmtAttestations for block %v: %w", b.Slot, err)
 				}
 			}
+
+			if exportLastAttestationSlot {
+				blockLog.WithField("slots_count", len(attestationsMap)).Info("recording new block attestations")
+				for s, attesters := range attestationsMap {
+					_, err = stmtValidatorsLastAttestationSlot.Exec(s, pq.Array(attesters))
+					if err != nil {
+						return fmt.Errorf("error executing stmtValidatorsLastAttestationSlot for block %v: %w", b.Slot, err)
+					}
+				}
+			}
+
 			blockLog.WithField("duration", time.Since(t)).Tracef("attestations")
 			t = time.Now()
 

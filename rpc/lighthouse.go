@@ -292,46 +292,48 @@ func (lc *LighthouseClient) GetEpochData(epoch uint64) (*types.EpochData, error)
 	var validatorBalances7d map[uint64]uint64
 	var validatorBalances31d map[uint64]uint64
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		start := time.Now()
-		var err error
-		validatorBalances1d, err = lc.getBalancesForEpoch(epoch1d)
-		if err != nil {
-			logrus.Errorf("error retrieving validator balances for epoch %v (1d): %v", epoch1d, err)
-			return
-		}
-		logger.Printf("retrieved data for %v validator balances for epoch %v (1d) took %v", len(parsedValidators.Data), epoch1d, time.Since(start))
-	}()
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		start := time.Now()
-		var err error
-		validatorBalances7d, err = lc.getBalancesForEpoch(epoch7d)
-		if err != nil {
-			logrus.Errorf("error retrieving validator balances for epoch %v (7d): %v", epoch7d, err)
-			return
-		}
-		logger.Printf("retrieved data for %v validator balances for epoch %v (7d) took %v", len(parsedValidators.Data), epoch7d, time.Since(start))
-	}()
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		start := time.Now()
-		var err error
-		validatorBalances31d, err = lc.getBalancesForEpoch(epoch31d)
-		if err != nil {
-			logrus.Errorf("error retrieving validator balances for epoch %v (31d): %v", epoch31d, err)
-			return
-		}
-		logger.Printf("retrieved data for %v validator balances for epoch %v (31d) took %v", len(parsedValidators.Data), epoch31d, time.Since(start))
-	}()
-	wg.Wait()
+	if epoch%10 == 0 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			start := time.Now()
+			var err error
+			validatorBalances1d, err = lc.getBalancesForEpoch(epoch1d)
+			if err != nil {
+				logrus.Errorf("error retrieving validator balances for epoch %v (1d): %v", epoch1d, err)
+				return
+			}
+			logger.Printf("retrieved data for %v validator balances for epoch %v (1d) took %v", len(parsedValidators.Data), epoch1d, time.Since(start))
+		}()
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			start := time.Now()
+			var err error
+			validatorBalances7d, err = lc.getBalancesForEpoch(epoch7d)
+			if err != nil {
+				logrus.Errorf("error retrieving validator balances for epoch %v (7d): %v", epoch7d, err)
+				return
+			}
+			logger.Printf("retrieved data for %v validator balances for epoch %v (7d) took %v", len(parsedValidators.Data), epoch7d, time.Since(start))
+		}()
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			start := time.Now()
+			var err error
+			validatorBalances31d, err = lc.getBalancesForEpoch(epoch31d)
+			if err != nil {
+				logrus.Errorf("error retrieving validator balances for epoch %v (31d): %v", epoch31d, err)
+				return
+			}
+			logger.Printf("retrieved data for %v validator balances for epoch %v (31d) took %v", len(parsedValidators.Data), epoch31d, time.Since(start))
+		}()
+		wg.Wait()
+	}
 
 	for _, validator := range parsedValidators.Data {
-		data.Validators = append(data.Validators, &types.Validator{
+		val := &types.Validator{
 			Index:                      uint64(validator.Index),
 			PublicKey:                  utils.MustParseHex(validator.Validator.Pubkey),
 			WithdrawalCredentials:      utils.MustParseHex(validator.Validator.WithdrawalCredentials),
@@ -342,11 +344,15 @@ func (lc *LighthouseClient) GetEpochData(epoch uint64) (*types.EpochData, error)
 			ActivationEpoch:            uint64(validator.Validator.ActivationEpoch),
 			ExitEpoch:                  uint64(validator.Validator.ExitEpoch),
 			WithdrawableEpoch:          uint64(validator.Validator.WithdrawableEpoch),
-			Balance1d:                  validatorBalances1d[uint64(validator.Index)],
-			Balance7d:                  validatorBalances7d[uint64(validator.Index)],
-			Balance31d:                 validatorBalances31d[uint64(validator.Index)],
 			Status:                     validator.Status,
-		})
+		}
+
+		if epoch%10 == 0 {
+			val.Balance1d = validatorBalances1d[uint64(validator.Index)]
+			val.Balance7d = validatorBalances7d[uint64(validator.Index)]
+			val.Balance31d = validatorBalances31d[uint64(validator.Index)]
+		}
+		data.Validators = append(data.Validators, val)
 	}
 
 	logger.Printf("retrieved data for %v validators for epoch %v", len(data.Validators), epoch)

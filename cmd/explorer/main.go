@@ -80,12 +80,12 @@ func main() {
 				logrus.Printf("setting default rpc page size to 500")
 				utils.Config.Indexer.Node.PageSize = 500
 			}
-			rpcClient, err = rpc.NewPrysmClient(cfg.Indexer.Node.Host + ":" + cfg.Indexer.Node.Port)
+			rpcClient, err = rpc.NewPrysmClient(cfg.Indexer.Node.Host)
 			if err != nil {
 				logrus.Fatal(err)
 			}
 		} else if utils.Config.Indexer.Node.Type == "lighthouse" {
-			rpcClient, err = rpc.NewLighthouseClient("http://" + cfg.Indexer.Node.Host + ":" + cfg.Indexer.Node.Port)
+			rpcClient, err = rpc.NewLighthouseClient(cfg.Indexer.Node.Host)
 			if err != nil {
 				logrus.Fatal(err)
 			}

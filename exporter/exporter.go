@@ -384,13 +384,10 @@ func doFullCheck(client rpc.Client) {
 		logger.Errorf("error marking orphaned blocks: %v", err)
 	}
 
-	// Update epoch statistics up to 10 epochs after the last finalized epoch
+	// Update epoch statistics up to 5 epochs after the head epoch
 	startEpoch = uint64(0)
-	if head.FinalizedEpoch > 10 {
-		startEpoch = head.FinalizedEpoch - 10
-		if head.HeadEpoch-startEpoch > 10 {
-			startEpoch = head.HeadEpoch - 10
-		}
+	if head.HeadEpoch > 5 {
+		startEpoch = head.HeadEpoch - 5
 	}
 	logger.Infof("updating status of epochs %v-%v", startEpoch, head.HeadEpoch)
 	err = updateEpochStatus(client, startEpoch, head.HeadEpoch)

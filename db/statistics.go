@@ -118,8 +118,9 @@ func WriteStatisticsForDay(day uint64) error {
 		(
 			select validators.validatorindex, $3, count(*), sum(amount)
 			from blocks_deposits
+			INNER JOIN blocks ON blocks_deposits.block_root = blocks.blockroot AND blocks.status = '1'
 			inner join validators on blocks_deposits.publickey = validators.pubkey
-			where block_slot >= $1 * 16 and block_slot <= $2 * 16 and status = '1'
+			where block_slot >= $1 * 16 and block_slot <= $2 * 16
 			group by validators.validatorindex
 		) 
 		on conflict (validatorindex, day) do
@@ -134,8 +135,9 @@ func WriteStatisticsForDay(day uint64) error {
 			(
 				select validators.validatorindex, case when block_slot = 0 then -1 else $3 end as day, count(*), sum(amount)
 				from blocks_deposits
+				INNER JOIN blocks ON blocks_deposits.block_root = blocks.blockroot AND blocks.status = '1'
 				inner join validators on blocks_deposits.publickey = validators.pubkey
-				where block_slot >= $1 * 16 and block_slot <= $2 * 16 and status = '1'
+				where block_slot >= $1 * 16 and block_slot <= $2 * 16
 				group by validators.validatorindex, day
 			) 
 			on conflict (validatorindex, day) do
