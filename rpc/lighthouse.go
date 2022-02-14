@@ -272,10 +272,12 @@ func (lc *LighthouseClient) GetEpochData(epoch uint64) (*types.EpochData, error)
 	data := &types.EpochData{}
 	data.Epoch = epoch
 
+	start := time.Now()
 	validatorsResp, err := lc.get(fmt.Sprintf("%s/eth/v1/beacon/states/%d/validators", lc.endpoint, epoch*utils.Config.Chain.SlotsPerEpoch))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving validators for epoch %v: %v", epoch, err)
 	}
+	logger.Printf("DEBUG: /eth/v1/beacon/states/%d/validators, took %v", epoch*utils.Config.Chain.SlotsPerEpoch, time.Since(start))
 
 	var parsedValidators StandardValidatorsResponse
 	err = json.Unmarshal(validatorsResp, &parsedValidators)
@@ -361,17 +363,20 @@ func (lc *LighthouseClient) GetEpochData(epoch uint64) (*types.EpochData, error)
 	go func() {
 		defer wg.Done()
 		var err error
+		start := time.Now()
 		data.ValidatorAssignmentes, err = lc.GetEpochAssignments(epoch)
 		if err != nil {
 			logrus.Errorf("error retrieving assignments for epoch %v: %v", epoch, err)
 			return
 		}
+		logger.Printf("DEBUG: retrieved epoch assignments, took %v", time.Since(start))
 		logger.Printf("retrieved validator assignment data for epoch %v", epoch)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		start := time.Now()
 		data.EpochParticipationStats, err = lc.GetValidatorParticipation(epoch)
 		if err != nil {
 			logger.Errorf("error retrieving epoch participation statistics for epoch %v: %v", epoch, err)
@@ -383,6 +388,7 @@ func (lc *LighthouseClient) GetEpochData(epoch uint64) (*types.EpochData, error)
 				EligibleEther:           0,
 			}
 		}
+		logger.Printf("DEBUG: retrieved validator participation, took %v", time.Since(start))
 	}()
 
 	// Retrieve all blocks for the epoch
@@ -395,7 +401,9 @@ func (lc *LighthouseClient) GetEpochData(epoch uint64) (*types.EpochData, error)
 		wg.Add(1)
 		go func(slot uint64) {
 			defer wg.Done()
+			start := time.Now()
 			blocks, err := lc.GetBlocksBySlot(slot)
+			logger.Printf("DEBUG: got block for slot %d, took %v", slot, time.Since(start))
 
 			if err != nil {
 				logger.Errorf("error retrieving blocks for slot %v: %v", slot, err)
