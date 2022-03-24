@@ -12,31 +12,6 @@
                         <i  class="fa fa-edit"></i>
                     </button>
                 </span>
-                {{ if len .Watchlist }}
-                <span data-toggle="tooltip" title="Stop receiving updates for this validator.">
-                    <form class="d-inline-block" action="{{printf "%#x" .PublicKey}}/remove" method="post">
-                        <button class="btn btn-dark text-white btn-sm" type="submit" id="unfollow-button" >
-                            <i class="fas fa-bookmark"></i>
-                        </button>
-                    </form>
-                </span>
-                {{else}}
-                    {{ if .User.Authenticated }}
-                    <span data-toggle="tooltip" title="Follow this validator and receive email notifications">
-                        <button class="btn btn-dark text-white btn-sm" id="follow-button" data-toggle="modal" data-target="#bookmark-validator-modal" >
-                            <i class="far fa-bookmark"></i>
-                        </button>
-                    </span>
-                    {{ else }}
-                        <span data-toggle="tooltip" title="Follow this validator and receive email notifications">
-                            <form class="d-inline-block" action="{{printf "%#x" .PublicKey}}/add" method="post">
-                                <button class="btn btn-dark text-white btn-sm" id="follow-button">
-                                    <i class="far fa-bookmark"></i>
-                                </button>
-                            </form>
-                        </span>
-                    {{end}}
-                {{end}}
                 <span data-toggle="tooltip" title="View daily statistics">
                     <a class="btn btn-dark text-white btn-sm" href="/validator/{{.Index}}/stats">
                         <i class="fas fa-table"></i>

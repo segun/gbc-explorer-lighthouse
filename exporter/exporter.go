@@ -474,6 +474,10 @@ func ExportEpoch(epoch uint64, client rpc.Client) error {
 		if err != nil {
 			logger.Fatalf("unable to create partition sync_assignments_%v: %v", week, err)
 		}
+		_, err = db.DB.Exec(fmt.Sprintf("CREATE INDEX idx_sync_assignments_%v_slot ON sync_assignments_%v (slot);", week, week))
+		if err != nil {
+			logger.Fatalf("unable to create partition sync_assignments_%v: %v", week, err)
+		}
 	}
 
 	startGetEpochData := time.Now()
