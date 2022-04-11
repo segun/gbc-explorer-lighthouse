@@ -78,6 +78,10 @@ func exportSyncCommitteeAtPeriod(rpcClient rpc.Client, p uint64) error {
 			if err != nil {
 				logger.Fatalf("unable to create partition sync_assignments_%v: %v", w, err)
 			}
+			_, err = db.DB.Exec(fmt.Sprintf("CREATE INDEX idx_sync_assignments_%v_slot ON sync_assignments_%v (slot);", w, w))
+			if err != nil {
+				logger.Fatalf("unable to create partition sync_assignments_%v: %v", w, err)
+			}
 		}
 	}
 
