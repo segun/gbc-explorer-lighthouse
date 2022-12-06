@@ -1,5 +1,7 @@
 {{define "maintenance"}}
+  {{if .Maintenance.Enabled}}
   <div class="maintenance-container">
-      <h1 class="mt-2 text-center" style="color:red;">Maintenance message testing</h1>
+	  <h1 class="mt-2 text-center" style="color:#ec7414;">{{.Maintenance.Message}}</h1>
   </div>
+  {{end}}
 {{end}}
