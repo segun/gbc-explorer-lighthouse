@@ -152,6 +152,7 @@ type IndexPageData struct {
 	DepositChart              *ChartsPageDataChart
 	DepositDistribution       *ChartsPageDataChart
 	Countdown                 interface{}
+	Maintenance               interface{}
 	Currency                  string
 	CurrencyName              string
 }
@@ -406,7 +407,7 @@ type ChartDataPoint struct {
 	Color string  `json:"color"`
 }
 
-//ValidatorRank is a struct for validator rank data
+// ValidatorRank is a struct for validator rank data
 type ValidatorRank struct {
 	Rank int64 `db:"rank" json:"rank"`
 }

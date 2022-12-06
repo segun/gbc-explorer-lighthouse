@@ -40,6 +40,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	data.Data.(*types.IndexPageData).ShowSyncingMessage = data.ShowSyncingMessage
 	data.Data.(*types.IndexPageData).Countdown = utils.Config.Frontend.Countdown
+	data.Data.(*types.IndexPageData).Maintenance = utils.Config.Frontend.Maintenance
 
 	err := indexTemplate.ExecuteTemplate(w, "layout", data)
 
