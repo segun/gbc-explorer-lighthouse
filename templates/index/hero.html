@@ -146,6 +146,9 @@
             class="fas fa-ad mr-2"></i>Advertise</a>
       </h6>
     </div>
+    {{if .Maintenance.Enabled}}
+      <h1 class="mt-2 text-center" style="color:red;">{{.Maintenance.Message}}</h1>
+    {{end}}
     {{if .Countdown.Enabled}}
       <div class="d-flex d-lg-none align-items-center justify-content-center w-100 mt-2">
         <div class="d-flex flex-column" style="position: relative; top: 0;">

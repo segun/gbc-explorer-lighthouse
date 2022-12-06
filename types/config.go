@@ -133,6 +133,10 @@ type Config struct {
 			Timestamp uint64        `yaml:"timestamp" envconfig:"FRONTEND_COUNTDOWN_TIMESTAMP"`
 			Info      string        `yaml:"info" envconfig:"FRONTEND_COUNTDOWN_INFO"`
 		} `yaml:"countdown"`
+		Maintenance struct {
+			Enabled bool          `yaml:"enabled" envconfig:"FRONTEND_MAINTENANCE_ENABLED"`
+			Message template.HTML `yaml:"title" envconfig:"FRONTEND_MAINTENANCE_TITLE"`
+		} `yaml:"maintenance"`
 		Eth1ExplorerBase           string `yaml:"eth1ExplorerBase" envconfig:"FRONTEND_ETH1_EXPLORER_BASE"`
 		Eth1Currency               string `yaml:"eth1Currency" envconfig:"FRONTEND_ETH1_CURRENCY"`
 		Eth1CurrencyName           string `yaml:"eth1CurrencyName" envconfig:"FRONTEND_ETH1_CURRENCY_NAME"`
