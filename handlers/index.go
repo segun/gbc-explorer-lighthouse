@@ -6,6 +6,7 @@ import (
 	"eth2-exporter/types"
 	"eth2-exporter/utils"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -41,6 +42,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	data.Data.(*types.IndexPageData).ShowSyncingMessage = data.ShowSyncingMessage
 	data.Data.(*types.IndexPageData).Countdown = utils.Config.Frontend.Countdown
 	data.Data.(*types.IndexPageData).Maintenance = utils.Config.Frontend.Maintenance
+	log.Print("------ MAINTENANCE")
+	log.Print(utils.Config.Frontend.Maintenance.Enabled)
+	log.Print(utils.Config.Frontend.Maintenance.Message)
+	log.Print("------ MAINTENANCE ----")
 
 	err := indexTemplate.ExecuteTemplate(w, "layout", data)
 
