@@ -213,6 +213,19 @@
             margin-top: 1rem;
         }
 
+        .maintenance-container {
+            position: relative;
+            min-height: 30px;
+            width: 100%;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+        }
+
         .hero-image {
             overflow: hidden;
             flex: 1;
@@ -295,6 +308,10 @@
             .hero-container {
                 margin-bottom: 50px;
             }
+
+            .maintenance-container {
+                margin-bottom: 20px;
+            }
         }
 
         @media (max-width: 960px) {
@@ -326,6 +343,13 @@
                 transform: scale(1) translateY(10%);
                 animation: none;
                 opacity: .1;
+            }
+
+            .maintenance-container {
+                flex-wrap: nowrap;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
             }
         }
 
