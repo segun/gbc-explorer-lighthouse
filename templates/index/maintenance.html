@@ -1,0 +1,7 @@
+{{define "maintenance"}}
+  <div class="hero-container">
+    {{if .Maintenance.Enabled}}
+      <h1 class="mt-2 text-center" style="color:red;">{{.Maintenance.Message}}</h1>
+    {{end}}
+  </div>
+{{end}}
