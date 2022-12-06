@@ -135,7 +135,7 @@ type Config struct {
 		} `yaml:"countdown"`
 		Maintenance struct {
 			Enabled bool          `yaml:"enabled" envconfig:"FRONTEND_MAINTENANCE_ENABLED"`
-			Message template.HTML `yaml:"title" envconfig:"FRONTEND_MAINTENANCE_TITLE"`
+			Message template.HTML `yaml:"message" envconfig:"FRONTEND_MAINTENANCE_MESSAGE"`
 		} `yaml:"maintenance"`
 		Eth1ExplorerBase           string `yaml:"eth1ExplorerBase" envconfig:"FRONTEND_ETH1_EXPLORER_BASE"`
 		Eth1Currency               string `yaml:"eth1Currency" envconfig:"FRONTEND_ETH1_CURRENCY"`
