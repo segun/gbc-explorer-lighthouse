@@ -22,7 +22,7 @@ services:
         container_name: postgres 
         restart: always
         environment:
-            - POSTGRES_PASSWORD=pass
+            - POSTGRES_PASSWORD=@B50lut3
             - POSTGRES_USER=postgres
             - POSTGRES_DB=db
             - PGDATA=/postgresql/data
@@ -32,25 +32,27 @@ services:
         ports:
             - '5432:5432'
 
-    prysm:
-        image: gcr.io/prysmaticlabs/prysm/beacon-chain:latest
-        container_name: prysm 
-        restart: always
-        volumes:
-            - ./private/eth2_data:/data
-            # - ./private/eth2_data/main:/data # use this for mainnet
-            - ./private/eth1_node/.ethereum:/eth
-        network_mode: host
-        command: 
-            - --datadir=/data
-            - --rpc-host=0.0.0.0
-            - --monitoring-host=0.0.0.0
-            - --http-web3provider=/eth/goerli/geth.ipc
-            # - --http-web3provider=/eth/geth.ipc #use this option for mainnet
-            - --accept-terms-of-use
-        depends_on:
-            - eth1
-                # condition: service_healthy
+    lighthouse:
+
+    # prysm:
+    #     image: gcr.io/prysmaticlabs/prysm/beacon-chain:latest
+    #     container_name: prysm 
+    #     restart: always
+    #     volumes:
+    #         - ./private/eth2_data:/data
+    #         # - ./private/eth2_data/main:/data # use this for mainnet
+    #         - ./private/eth1_node/.ethereum:/eth
+    #     network_mode: host
+    #     command: 
+    #         - --datadir=/data
+    #         - --rpc-host=0.0.0.0
+    #         - --monitoring-host=0.0.0.0
+    #         - --http-web3provider=/eth/goerli/geth.ipc
+    #         # - --http-web3provider=/eth/geth.ipc #use this option for mainnet
+    #         - --accept-terms-of-use
+    #     depends_on:
+    #         - eth1
+    #             # condition: service_healthy
 
     go:
         image: golang:1.15
@@ -63,7 +65,6 @@ services:
         depends_on:
             - eth1
             - postgres
-            - prysm
         command: /bin/sh
         stdin_open: true
         tty: true
