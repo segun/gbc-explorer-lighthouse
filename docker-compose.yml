@@ -1,22 +1,5 @@
 version: '2.4'
 services:
-    eth1:
-        image: ethereum/client-go:latest
-        container_name: eth1
-        restart: always
-        volumes:
-            - ./private/eth1_node:/root
-        network_mode: host
-        # healthcheck:
-        #     test: sleep 5
-        #     interval: 1s
-        #     timeout: 1s
-        #     retries: 1
-
-        command: # comment this out for mainnet
-            - --goerli # comment this out for mainnet
-
-
     postgres:
         image: postgres:13-alpine
         container_name: postgres 
@@ -31,27 +14,6 @@ services:
             - ./tables.sql:/docker-entrypoint-initdb.d/tables.sql
         ports:
             - '5432:5432'
-
-    # prysm:
-    #     image: gcr.io/prysmaticlabs/prysm/beacon-chain:latest
-    #     container_name: prysm 
-    #     restart: always
-    #     volumes:
-    #         - ./private/eth2_data:/data
-    #         # - ./private/eth2_data/main:/data # use this for mainnet
-    #         - ./private/eth1_node/.ethereum:/eth
-    #     network_mode: host
-    #     command: 
-    #         - --datadir=/data
-    #         - --rpc-host=0.0.0.0
-    #         - --monitoring-host=0.0.0.0
-    #         - --http-web3provider=/eth/goerli/geth.ipc
-    #         # - --http-web3provider=/eth/geth.ipc #use this option for mainnet
-    #         - --accept-terms-of-use
-    #     depends_on:
-    #         - eth1
-    #             # condition: service_healthy
-
     go:
         image: golang:1.15
         container_name: golang 
@@ -61,7 +23,6 @@ services:
         working_dir: /usr/src/app
         network_mode: host
         depends_on:
-            - eth1
             - postgres
         command: /bin/sh
         stdin_open: true
