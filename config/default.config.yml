@@ -55,7 +55,7 @@ indexer:
     port: "9000" # port of the backend node
     type: "lighthouse" # can be either prysm or lighthouse
     pageSize: 500 # the amount of entries to fetch per paged rpc call
-  #eth1Endpoint: 'https://rpc.ankr.com/gnosis'
-  eth1Endpoint: ./private/eth1_node/.ethereum/goerli/geth.ipc
+  eth1Endpoint: 'http://localhost:8545'
+  #eth1Endpoint: ./private/eth1_node/.ethereum/goerli/geth.ipc
   eth1DepositContractAddress: '0x5cA1e00004366Ac85f492887AAab12d0e6418876'
   eth1DepositContractFirstBlock: 2523557
