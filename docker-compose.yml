@@ -11,7 +11,6 @@ services:
             - 30303:30303/udp # p2p
         volumes:
             - ./execution-data:/data
-            - ./jwtsecret/jwt.hex:jwt.hex
             - /etc/timezone:/etc/timezone:ro
             - /etc/localtime:/etc/localtime:ro
         command: |
